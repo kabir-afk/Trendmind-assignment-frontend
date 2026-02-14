@@ -5,7 +5,9 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [post, setPost] = useState("");
-
+  const [copied, setCopied] = useState(false);
+  const [copyLoading, setCopyLoading] = useState(false);
+  const [__copyError, setCopyError] = useState("");
   const [fields, setFields] = useState({
     tone: "Friendly",
     targetAudience: "",
@@ -22,6 +24,32 @@ function App() {
 
   const isFormValid =
     fields.targetAudience.trim() !== "" && fields.topic.trim() !== "";
+  async function copyText() {
+    if (!post) return;
+
+    try {
+      setCopyLoading(true);
+      setCopyError("");
+      setCopied(false);
+
+      if (!navigator.clipboard) {
+        throw new Error("Clipboard not supported");
+      }
+
+      await navigator.clipboard.writeText(post);
+
+      setCopied(true);
+
+      // Auto reset success state
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (err) {
+      setCopyError("Failed to copy. Try manually.");
+    } finally {
+      setCopyLoading(false);
+    }
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -49,7 +77,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 py-12 px-4">
       <div className="max-w-2xl mx-auto space-y-8">
         <div className="bg-white rounded-xl shadow-xl p-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">
@@ -149,9 +177,31 @@ function App() {
 
         {post && (
           <div className="bg-white rounded-xl shadow-xl p-8">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
-              Generated Post
-            </h2>
+            <div className="w-full flex justify-between">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">
+                Generated Post
+              </h2>
+              <button
+                onClick={copyText}
+                disabled={copyLoading}
+                className={`p-2 rounded-md transition ${
+                  copyLoading
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                <img
+                  src={
+                    copyLoading
+                      ? "/pending.svg"
+                      : copied
+                        ? "/check.svg"
+                        : "/copy.svg"
+                  }
+                  alt="copy-status"
+                />
+              </button>
+            </div>
             <div className="whitespace-pre-line text-gray-700 leading-relaxed">
               {post}
             </div>
