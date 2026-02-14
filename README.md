@@ -79,3 +79,7 @@ Troubleshooting
 
 - If you see CORS or network errors when generating posts, ensure the backend is running and reachable from the browser. Either start the backend at `http://127.0.0.1:8000` or update the endpoint in `src/App.jsx`.
 - If Tailwind utilities aren't applied, confirm `src/index.css` imports Tailwind directives and restart the dev server.
+
+## AI Usage
+
+I have used ChatGPT to get a better clarity on assignment, with claude to fine tune my code for missing pieces. Besides that I used VS Code Copilot to generate descriptive READMEs.
