@@ -66,7 +66,7 @@ function App() {
         fields,
       );
 
-      setPost(response.data);
+      setPost(response.data.post);
     } catch (err) {
       setError(
         err?.response?.data?.message || "Something went wrong. Try again.",
@@ -89,7 +89,10 @@ function App() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                className="block text-sm font-medium text-gray-700 mb-2"
+                htmlFor="tone"
+              >
                 Tone
               </label>
               <select
@@ -107,7 +110,10 @@ function App() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                className="block text-sm font-medium text-gray-700 mb-2"
+                htmlFor="targetAudience"
+              >
                 Target Audience
               </label>
               <input
@@ -122,7 +128,10 @@ function App() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                className="block text-sm font-medium text-gray-700 mb-2"
+                htmlFor="topic"
+              >
                 Topic
               </label>
               <input
@@ -137,7 +146,10 @@ function App() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                className="block text-sm font-medium text-gray-700 mb-2"
+                htmlFor="length"
+              >
                 Length
               </label>
               <select
