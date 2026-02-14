@@ -51,9 +51,7 @@ function App() {
     }
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-
+  async function generatePost() {
     if (!isFormValid) return;
 
     try {
@@ -69,11 +67,15 @@ function App() {
       setPost(response.data.post);
     } catch (err) {
       setError(
-        err?.response?.data?.message || "Something went wrong. Try again.",
+        err?.response?.data?.error || "Something went wrong. Try again.",
       );
     } finally {
       setLoading(false);
     }
+  }
+  function handleSubmit(e) {
+    e.preventDefault();
+    generatePost();
   }
 
   return (
@@ -87,7 +89,7 @@ function App() {
             Generate engaging LinkedIn posts tailored to your audience
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={(e) => handleSubmit(e)} className="space-y-6">
             <div>
               <label
                 className="block text-sm font-medium text-gray-700 mb-2"
@@ -193,26 +195,39 @@ function App() {
               <h2 className="text-xl font-bold text-gray-800 mb-4">
                 Generated Post
               </h2>
-              <button
-                onClick={copyText}
-                disabled={copyLoading}
-                className={`p-2 rounded-md transition ${
-                  copyLoading
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                <img
-                  src={
+              <div>
+                <button
+                  onClick={generatePost}
+                  disabled={loading}
+                  className={`p-2 rounded-md transition ${
+                    loading
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
+                  <img src="/regenerate.svg" alt="regenerate-post" />
+                </button>
+                <button
+                  onClick={copyText}
+                  disabled={copyLoading}
+                  className={`p-2 rounded-md transition ${
                     copyLoading
-                      ? "/pending.svg"
-                      : copied
-                        ? "/check.svg"
-                        : "/copy.svg"
-                  }
-                  alt="copy-status"
-                />
-              </button>
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
+                  <img
+                    src={
+                      copyLoading
+                        ? "/pending.svg"
+                        : copied
+                          ? "/check.svg"
+                          : "/copy.svg"
+                    }
+                    alt="copy-status"
+                  />
+                </button>
+              </div>
             </div>
             <div className="whitespace-pre-line text-gray-700 leading-relaxed">
               {post}
