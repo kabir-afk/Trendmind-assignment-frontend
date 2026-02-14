@@ -1,6 +1,11 @@
-import { useEffect, useState } from "react";
+import axios from "axios";
+import { useState } from "react";
 
 function App() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [post, setPost] = useState("");
+
   const [fields, setFields] = useState({
     tone: "Friendly",
     targetAudience: "",
@@ -9,18 +14,44 @@ function App() {
   });
 
   function handleChange(e) {
-    setFields((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setFields((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   }
 
-  function handleSubmit(e) {
+  const isFormValid =
+    fields.targetAudience.trim() !== "" && fields.topic.trim() !== "";
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    console.log(fields);
+
+    if (!isFormValid) return;
+
+    try {
+      setLoading(true);
+      setError("");
+      setPost("");
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/v1/generate",
+        fields,
+      );
+
+      setPost(response.data);
+    } catch (err) {
+      setError(
+        err?.response?.data?.message || "Something went wrong. Try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-xl p-8">
+      <div className="max-w-2xl mx-auto space-y-8">
+        <div className="bg-white rounded-xl shadow-xl p-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">
             LinkedIn Post Creator
           </h1>
@@ -30,18 +61,15 @@ function App() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label
-                htmlFor="tone"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Tone
               </label>
               <select
                 name="tone"
-                id="tone"
                 value={fields.tone}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                disabled={loading}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:bg-gray-100"
               >
                 <option value="Friendly">Friendly</option>
                 <option value="Authoritative">Authoritative</option>
@@ -51,54 +79,45 @@ function App() {
             </div>
 
             <div>
-              <label
-                htmlFor="targetAudience"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Target Audience
               </label>
               <input
                 type="text"
                 name="targetAudience"
-                id="targetAudience"
                 value={fields.targetAudience}
                 onChange={handleChange}
                 placeholder="e.g., Software developers, Marketers, Entrepreneurs"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                disabled={loading}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:bg-gray-100"
               />
             </div>
 
             <div>
-              <label
-                htmlFor="topic"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Topic
               </label>
               <input
                 type="text"
                 name="topic"
-                id="topic"
                 value={fields.topic}
                 onChange={handleChange}
                 placeholder="e.g., AI trends, Remote work productivity"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                disabled={loading}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:bg-gray-100"
               />
             </div>
 
             <div>
-              <label
-                htmlFor="length"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Length
               </label>
               <select
                 name="length"
-                id="length"
                 value={fields.length}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                disabled={loading}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:bg-gray-100"
               >
                 <option value="short">Short (100-150 words)</option>
                 <option value="medium">Medium (200-300 words)</option>
@@ -106,14 +125,38 @@ function App() {
               </select>
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              disabled={!isFormValid || loading}
+              className={`w-full font-semibold py-3 px-6 rounded-lg transition duration-200 
+                ${
+                  !isFormValid || loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 hover:scale-[1.02] text-white"
+                }`}
             >
-              Generate Post
+              {loading ? "Generating..." : "Generate Post"}
             </button>
           </form>
         </div>
+
+        {error && (
+          <div className="bg-red-100 text-red-700 p-4 rounded-lg shadow">
+            {error}
+          </div>
+        )}
+
+        {post && (
+          <div className="bg-white rounded-xl shadow-xl p-8">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
+              Generated Post
+            </h2>
+            <div className="whitespace-pre-line text-gray-700 leading-relaxed">
+              {post}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
